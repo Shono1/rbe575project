@@ -42,7 +42,9 @@ class Point(Shape):
 
     def plot(self,ax,x,color='red'):
         """Plot the shape"""
-        if len(x) == 2:
+        if len(x) == 1:
+            ax.plot(x[0], 0, self.marker,color=color,mew=3)
+        elif len(x) == 2:
             ax.plot(x[0], x[1],self.marker,color=color,mew=3)
         elif len(x) == 3:
             ax.plot3D([x[0]],[x[1]],[x[2]],color=color, marker=self.marker)
