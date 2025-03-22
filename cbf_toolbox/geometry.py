@@ -31,14 +31,20 @@ class Shape(ABC):
 
 class Point(Shape):
     """A single point in space. If given an offset, it similar to a sphere"""
-    def __init__(self, ndim=2, marker='x'):
+    def __init__(self, ndim=2, marker='x', h=None):
         self.ndim = ndim
-        self.radius = 0
+        self.radius = 0.0
         self.marker = marker
+        # If penalty matrix not assigned, make it a unit scale penalty in all dimensions
+        if not isinstance(h, np.ndarray):
+            self.h = np.identity(self.ndim)
+        else:
+            self.h = h
     
     def func(self, x, offset=0):
         """Function that defines the shape"""
-        return x.T.dot(x) - offset**2
+        return jnp.dot(self.h, x).T.dot(jnp.dot(self.h, x)) - offset**2
+        # return x.T.dot(x) - offset**2
 
     def plot(self,ax,x,color='red'):
         """Plot the shape"""

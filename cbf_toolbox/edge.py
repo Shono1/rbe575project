@@ -47,7 +47,7 @@ class ReferenceControl(Edge):
 
 class CLF(Edge):
     """Control Lyapunov Function to govern the attraction between an Agent and Vertex"""
-    def __init__(self, agent, goal):
+    def __init__(self, agent, goal, max_delta=None):
         super().__init__(agent, goal)
 
         self.lyap = goal.shape.func
@@ -55,6 +55,8 @@ class CLF(Edge):
         self.gamma = goal.gamma
         self.p = goal.p
         self.H = goal.H
+        if not (max_delta is None):
+            self.delta = max_delta
 
     def add_clf(self,m):
         """Adds CLF constraint to the Gurobi model"""

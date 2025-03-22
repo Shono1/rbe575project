@@ -51,7 +51,7 @@ class Simulation(object):
         agent.add_grb_control_vars(self.m, upper_bounds=upper_bounds, lower_bounds=lower_bounds)
         
         if type(control) is Goal:
-            self.control.append(CLF(agent,control))
+            self.control.append(CLF(agent,control,max_delta=control.max_delta))
             agent.goal = control
             agent.u_ref = None
         else:
@@ -194,6 +194,7 @@ class Simulation(object):
             self.step()
             
             if plotting:
+                plt.grid(True)
                 self.plot()
 
             if make_video:

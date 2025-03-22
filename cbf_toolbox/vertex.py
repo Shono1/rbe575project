@@ -179,10 +179,11 @@ class Obstacle(Vertex):
 
 class Goal(Vertex):
     """Object that relates to an Agent through a CLF. Agent will move toward a goal"""
-    def __init__(self, state, shape=Point(), dynamics=SingleIntegrator2d(), p=1.0, gamma=0.25, H=None):
+    def __init__(self, state, shape=Point(), dynamics=SingleIntegrator2d(), p=1.0, gamma=0.25, H=None, max_delta=None):
         state = np.array(state, dtype=np.float32)
         self.p = p
         self.gamma = gamma
         self.H = H
         self.u = np.zeros(dynamics.m)
+        self.max_delta = max_delta
         super().__init__(state, shape, dynamics)
