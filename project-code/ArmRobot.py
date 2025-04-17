@@ -8,8 +8,8 @@ class OMXArm(Dynamics):
         self.robot = robot
         n = robot.n
         m = robot.n
-        f = 0
-        g = np.eye(n)
+        f = lambda x: 0
+        g = lambda x: np.eye(n)
         super().__init__(n, m, f, g)
 
 
