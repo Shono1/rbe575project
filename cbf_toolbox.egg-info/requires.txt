@@ -1,4 +1,0 @@
-matplotlib
-jax
-jaxlib
-gurobipy

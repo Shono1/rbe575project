@@ -1,21 +1,29 @@
-# DISTRIBUTION STATEMENT A. Approved for public release. Distribution is unlimited.
-# 
-# This material is based upon work supported by the Under Secretary of Defense for Research and Engineering under Air Force Contract No. FA8702-15-D-0001. Any opinions, findings, conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the Under Secretary of Defense for Research and Engineering.
-# 
-# © 2023 Massachusetts Institute of Technology.
-# 
-# Subject to FAR52.227-11 Patent Rights - Ownership by the contractor (May 2014)
-# 
-# The software/firmware is provided to you on an As-Is basis
-# 
-# Delivered to the U.S. Government with Unlimited Rights, as defined in DFARS Part 252.227-7013 or 7014 (Feb 2014). Notwithstanding any copyright notice, U.S. Government rights in this work are defined by DFARS 252.227-7013 or DFARS 252.227-7014 as detailed above. Use of this work other than as specifically authorized by the U.S. Government may violate any copyrights that exist in this work.
-#
-# Author: Andrew Schoer, andrew.schoer@ll.mit.edu
+from setuptools import find_packages, setup
+import os
+from glob import glob
 
-from setuptools import setup
+package_name = 'rbe575project'
 
-setup(name="cbf_toolbox",
-      packages=["cbf_toolbox"],
-      version="1.0.0",
-      install_requires=["matplotlib", "jax", "jaxlib", "gurobipy"]
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='jhkeselman',
+    maintainer_email='jhkeselman@wpi.edu',
+    description='TODO: Package description',
+    license='Apache-2.0',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'safety_controller = rbe575project.safety_controller:main'
+        ],
+    },
 )
