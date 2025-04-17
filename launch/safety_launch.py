@@ -22,7 +22,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         # Safety controller
-        Node(package='safety', executable='safety_controller', output='screen'),
+        Node(package='rbe575project', executable='safety_controller', output='screen'),
         # Hardware/Servo Launch (REQUIRED TO RUN ARM)
         IncludeLaunchDescription(PythonLaunchDescriptionSource(hardware_launch_path)),
         IncludeLaunchDescription(PythonLaunchDescriptionSource(servo_launch_path)),
