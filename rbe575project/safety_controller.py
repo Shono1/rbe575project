@@ -18,13 +18,31 @@ class SafetyController(Node):
         self.start_moveit_servo()
 
         # Create publisher to command robot
-        self.vel_pub = self.create_publisher(JointJog, '/servo_node/delta_joint_cmds', 10)
+        self.joint_pub = self.create_publisher(JointJog, '/servo_node/delta_joint_cmds', 10)
         
-        # Subscribe to joint velocities being sent from CBF stuff
-        self.create_subscription(Float64MultiArray, '/joint_velocities', self.listener_callback, 10)
+        # Subscribe to joint velocities
+        self.create_subscription(Float64MultiArray, '/joint_velocities', self.velo_callback, 10)
+
+        # Subscribe to joint positions, this is how the CBF component will send commands
+        self.create_subscription(Float64MultiArray, '/joint_positions', self.pos_callback, 10)
+
+    def pos_callback(self, msg):
+        self.get_logger().info('Sending joint positions...')
+        joint_jog = JointJog()
+        joint_jog.header.stamp = self.get_clock().now().to_msg()
+        joint_jog.header.frame_id = 'link1'
+
+        # Add joint names
+        joint_jog.joint_names = ["joint1", "joint2", "joint3", "joint4"]
+
+        # Add velocities to JointJog
+        joint_jog.displacements = msg.data
+
+        # Publish JointJog
+        self.joint_pub.publish(joint_jog)
     
 
-    def listener_callback(self, msg):
+    def velo_callback(self, msg):
         self.get_logger().info('Sending joint velocities...')
         joint_jog = JointJog()
         joint_jog.header.stamp = self.get_clock().now().to_msg()
@@ -37,7 +55,7 @@ class SafetyController(Node):
         joint_jog.velocities = msg.data
 
         # Publish JointJog
-        self.vel_pub.publish(joint_jog)
+        self.joint_pub.publish(joint_jog)
 
     def connect_moveit_servo(self):
         for i in range(10):
