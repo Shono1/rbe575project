@@ -51,7 +51,7 @@ class SingularityCBF():
 
     def barrier(self, x, thresh):
         '''Calculates the manipulability of the robot'''
-        return jnp.abs(jnp.linalg.det(self.agent.dynamics.jax_jacob(x[0], x[1], x[2], x[3])[0:3, 0:3])) - thresh
+        return jnp.log10(jnp.abs(jnp.linalg.det(self.agent.dynamics.jax_jacob(x[0], x[1], x[2], x[3])[0:3, 0:3]))) - thresh
     
     def step(self,u=None,dt=0.1):
         """Move forward one time step"""
