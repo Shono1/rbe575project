@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: cbf_toolbox
+Version: 1.0.0
+License-File: LICENSE
+Requires-Dist: matplotlib
+Requires-Dist: jax
+Requires-Dist: jaxlib
+Requires-Dist: gurobipy

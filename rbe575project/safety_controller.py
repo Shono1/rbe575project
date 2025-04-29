@@ -60,7 +60,6 @@ class SafetyController(Node):
 
         # Add velocities to JointJog
         joint_jog.velocities = velocities
-
         # Publish JointJog
         self.joint_pub.publish(joint_jog)
     
