@@ -8,7 +8,7 @@ import roboticstoolbox as rtb
 with open('ts_record.pkl', 'rb') as f:
     ts_points: list[SE3] = pkl.load(f)
 
-with open('js_traj.pkl', 'rb') as f:
+with open('js_record.pkl', 'rb') as f:
     js_traj = pkl.load(f)
 
 dh_tab = [rtb.DHLink(d=96.326, alpha=-np.pi/2, a=0, offset=0),

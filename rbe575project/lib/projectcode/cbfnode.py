@@ -15,6 +15,8 @@ from spatialmath import SE3
 from spatialmath.base.transforms3d import trplot
 import pickle as pkl
 from std_msgs.msg import Bool
+import os, time
+
 
 from std_msgs.msg import Float64MultiArray
 
@@ -23,21 +25,26 @@ class CBFNode(Node):
         super().__init__('cbf_node')
 
         # Build robot object
-        dh_tab = [rtb.DHLink(d=96.326, alpha=-np.pi/2, a=0, offset=0, qlim=[-np.pi, np.pi]),
-                    rtb.DHLink(d=0, alpha=0, a=np.sqrt(24**2 + 128**2), offset=-np.arctan2(128, 24), qlim=[-np.pi/1.5, np.pi/1.5]),
-                    rtb.DHLink(d=0, alpha=0, a=124, offset=np.arctan2(128, 24), qlim=[-np.pi/1.5, np.pi/1.5]),
-                    rtb.DHLink(d=0, alpha=0, a=133.4, offset=0, qlim=[-np.pi/1.5, np.pi/1.5])]
-        self.robot = rtb.DHRobot(dh_tab, name='OMX-Arm')
+        # dh_tab = [rtb.DHLink(d=96.326, alpha=-np.pi/2, a=0, offset=0, qlim=[-np.pi, np.pi]),
+        #             rtb.DHLink(d=0, alpha=0, a=np.sqrt(24**2 + 128**2), offset=-np.arctan2(128, 24), qlim=[-np.pi/1.5, np.pi/1.5]),
+        #             rtb.DHLink(d=0, alpha=0, a=124, offset=np.arctan2(128, 24), qlim=[-np.pi/1.5, np.pi/1.5]),
+        #             rtb.DHLink(d=0, alpha=0, a=133.4, offset=0, qlim=[-np.pi/1.5, np.pi/1.5])]
+        # self.robot = rtb.DHRobot(dh_tab, name='OMX-Arm')
 
-        # Setup trajectory in task space
-        start = SE3(0, 150, 150)
-        end = SE3(0, -150, 150)
-        t = np.arange(0, 4, 0.1)
-        self.ts_traj = rtb.ctraj(start, end, t)
+        # # Setup trajectory in task space
+        # start = SE3(0, 150, 150)
+        # end = SE3(0, -150, 150)
+        # t = np.arange(0, 4, 0.1)
+        # self.ts_traj = rtb.ctraj(start, end, t)
 
-        # Guess joint space trajectory
-        guess = self.robot.ik_LM(self.ts_traj[0], mask=[1, 1, 1, 0, 0, 0])[0]
-        self.js_traj = [guess]
+        # # Guess joint space trajectory
+        # guess = self.robot.ik_LM(self.ts_traj[0], mask=[1, 1, 1, 0, 0, 0])[0]
+        # self.js_traj = [guess]
+
+        # Get the directory of the current script
+
+        with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
+            self.js_traj = pkl.load(f)
 
         # Setup publisher and subscriber
         self.position_pub = self.create_publisher(Float64MultiArray, '/joint_positions', 10)
@@ -47,14 +54,19 @@ class CBFNode(Node):
         self.get_logger().info("CBF Node has been initialized.")
     
     def update_position(self, msg):
-        for i, pt in enumerate(self.ts_traj[1:]):
-            res = self.robot.ik_LM(pt, mask=[1, 1, 1, 0, 0, 0], q0=self.js_traj[i], joint_limits=True)
-            # print(res)
-            self.js_traj.append(res[0])
-
+        for joints in self.js_traj:
             send = Float64MultiArray()
-            send.data = res[0].tolist()
+            send.data = joints.tolist()
             self.position_pub.publish(send)
+            time.sleep(0.1)
+        # for i, pt in enumerate(self.ts_traj[1:]):
+        #     res = self.robot.ik_LM(pt, mask=[1, 1, 1, 0, 0, 0], q0=self.js_traj[i], joint_limits=True)
+        #     # print(res)
+        #     self.js_traj.append(res[0])
+
+        #     send = Float64MultiArray()
+        #     send.data = res[0].tolist()
+        #     self.position_pub.publish(send)
 
 
     def destroy_node(self):
