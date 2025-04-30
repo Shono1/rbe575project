@@ -34,7 +34,9 @@ dyn = OMXArm(robot, lambda_jac)
 with open('js_traj.pkl', 'rb') as f:
     js_traj = pkl.load(f)
 
-js_traj.extend([js_traj[-1] * len(js_traj) * 10])
+print(len(js_traj))
+js_traj.extend([js_traj[-1]] * len(js_traj) * 2)
+print(len(js_traj))
 
 agent = Agent(np.array(js_traj[0]), Point(4), dyn, p=1000)
 # control = Goal(np.array(js_traj[0]), shape=Point(4), dynamics=SingleIntegrator(4), gamma=1, p=100)
