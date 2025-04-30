@@ -21,7 +21,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'safety_controller = rbe575project.safety_controller:main'
+            'safety_controller = rbe575project.safety_controller:main',
+            'cbf_node = rbe575project.lib.projectcode.cbfnode:main'
         ],
     },
 )

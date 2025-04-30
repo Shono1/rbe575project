@@ -57,6 +57,7 @@ class SafetyController(Node):
         # Get displacement
         duration = 0.1
         velocities = [(b_i - a_i) / duration for a_i, b_i in zip(self.current_positions, msg.data)]
+        print(velocities)
 
         # Add velocities to JointJog
         joint_jog.velocities = velocities

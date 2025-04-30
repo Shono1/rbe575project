@@ -5,7 +5,7 @@ import sympy as sym
 
 class OMXArm(Dynamics):
     def __init__(self, robot: rtb.DHRobot, jax_jacob: np.ndarray):
-        '''Initiailizes robot dynamnics from a DH table'''
+        '''Initiailizes robot dynamics from a DH table'''
         self.robot = robot
         n = robot.n
         m = robot.n

@@ -10,7 +10,7 @@ from time import sleep
 import jax.numpy as jnp
 import sympy as sym
 import pickle as pkl
-import dill
+# import dill
 # dill.settings['recurse'] = True
 import sys
 # print(sys.setrecursionlimit(10_000))
@@ -33,6 +33,10 @@ dyn = OMXArm(robot, lambda_jac)
 # Add everything to simulation
 with open('js_traj.pkl', 'rb') as f:
     js_traj = pkl.load(f)
+
+print(len(js_traj))
+js_traj.extend([js_traj[-1]] * len(js_traj) * 2)
+print(len(js_traj))
 
 agent = Agent(np.array(js_traj[0]), Point(4), dyn, p=1000)
 # control = Goal(np.array(js_traj[0]), shape=Point(4), dynamics=SingleIntegrator(4), gamma=1, p=100)
@@ -59,3 +63,6 @@ for i in range(len(js_traj)):
 print(ts)
 with open('ts_record.pkl', 'wb') as f:
     pkl.dump(ts, f)
+
+with open('js_record.pkl', 'wb') as f:
+    pkl.dump(qs, f)
