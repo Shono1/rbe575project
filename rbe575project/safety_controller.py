@@ -4,6 +4,7 @@ from control_msgs.msg import JointJog
 from std_msgs.msg import Float64MultiArray
 from std_srvs.srv import Trigger
 from sensor_msgs.msg import JointState
+from geometry_msgs.msg import Twist
 
 class SafetyController(Node):
     def __init__(self):
@@ -20,14 +21,18 @@ class SafetyController(Node):
 
         # Create publisher to command robot
         self.joint_pub = self.create_publisher(JointJog, '/servo_node/delta_joint_cmds', 10)
+
+        self.pos_pub = self.create_publisher(Twist, '/servo_node/delta_twist_cmds', 10)
         
         # Subscribe to joint velocities
         self.create_subscription(Float64MultiArray, '/joint_velocities', self.velo_callback, 10)
 
         # Subscribe to joint positions, this is how the CBF component will send commands
-        self.create_subscription(Float64MultiArray, '/joint_positions', self.pos_callback, 10)
+        self.create_subscription(Float64MultiArray, '/joint_positions', self.joint_callback, 10)
 
-        self.current_positions = [0,0,0,0]
+        self.create_subscription(Float64MultiArray, '/task_position', self.pos_callback, 10)
+
+        self.joint_positions = [0,0,0,0]
 
         # Subscribe to save joint positions
         self.create_subscription(JointState, '/joint_states', self.update_current_positions, 10)
@@ -38,15 +43,15 @@ class SafetyController(Node):
         for i in range(len(names)):
             joint = names[i]
             if joint == "joint1":
-                self.current_positions[0] = positions[i]
+                self.joint_positions[0] = positions[i]
             elif joint == "joint2":
-                self.current_positions[1] = positions[i]
+                self.joint_positions[1] = positions[i]
             elif joint == "joint3":
-                self.current_positions[2] = positions[i]
+                self.joint_positions[2] = positions[i]
             elif joint == "joint4":
-                self.current_positions[3] = positions[i]
+                self.joint_positions[3] = positions[i]
 
-    def pos_callback(self, msg):
+    def joint_callback(self, msg):
         self.get_logger().info('Sending joint positions...')
         joint_jog = JointJog()
         joint_jog.header.stamp = self.get_clock().now().to_msg()
@@ -56,13 +61,16 @@ class SafetyController(Node):
         
         # Get displacement
         duration = 0.1
-        velocities = [(b_i - a_i) / duration for a_i, b_i in zip(self.current_positions, msg.data)]
+        velocities = [(b_i - a_i) / duration for a_i, b_i in zip(self.joint_positions, msg.data)]
         print(velocities)
 
         # Add velocities to JointJog
         joint_jog.velocities = velocities
         # Publish JointJog
         self.joint_pub.publish(joint_jog)
+
+    def pos_callback(self, msg):
+        self.get_logger().info('Sending task positions...')
     
 
     def velo_callback(self, msg):

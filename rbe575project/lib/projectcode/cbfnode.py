@@ -47,27 +47,32 @@ class CBFNode(Node):
         # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
             self.js_traj = pkl.load(f)
 
+        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
+        # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
+            self.ts_traj = pkl.load(f)
+
         # Setup publisher and subscriber
-        self.position_pub = self.create_publisher(Float64MultiArray, '/joint_positions', 10)
+        self.joint_pub = self.create_publisher(Float64MultiArray, '/joint_positions', 10)
+
+        self.position_pub = self.create_publisher(Float64MultiArray, '/task_position', 10)
 
         self.create_subscription(Bool, '/starttraj', self.update_position, 10)
 
         self.get_logger().info("CBF Node has been initialized.")
     
     def update_position(self, msg):
-        for joints in self.js_traj:
-            send = Float64MultiArray()
-            send.data = joints.tolist()
-            self.position_pub.publish(send)
-            time.sleep(0.1)
-        # for i, pt in enumerate(self.ts_traj[1:]):
-        #     res = self.robot.ik_LM(pt, mask=[1, 1, 1, 0, 0, 0], q0=self.js_traj[i], joint_limits=True)
-        #     # print(res)
-        #     self.js_traj.append(res[0])
-
-        #     send = Float64MultiArray()
-        #     send.data = res[0].tolist()
-        #     self.position_pub.publish(send)
+        if(msg.data):
+            for joints in self.js_traj:
+                send = Float64MultiArray()
+                send.data = joints.tolist()
+                self.joint_pub.publish(send)
+                time.sleep(0.1)
+        else:
+            for pos in self.ts_traj:
+                send = Float64MultiArray()
+                send.data = pos.tolist()
+                self.position_pub.publish(send)
+                time.sleep(0.1)
 
 
     def destroy_node(self):
