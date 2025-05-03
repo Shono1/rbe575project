@@ -5,7 +5,9 @@ import numpy as np
 import roboticstoolbox as rtb
 import sympy as sym
 
-MAX_STEP = 0.05
+MAX_STEP = 0.1
+DET_THRESH = 4  # Keep jacobian determinant above this.
+
 # MAX_STEP = 0.025
 # Create a config class for your problem inheriting from the CBFConfig class
 class ArmCBF(CBFConfig):
@@ -37,7 +39,7 @@ class ArmCBF(CBFConfig):
         # print(f'jac(z): {self.jacob(*z)}')
         # print(f'det(z): {jnp.linalg.det(self.jacob(*z))}')
         # print(jnp.log10(jnp.linalg.det(self.jacob(*z)[0:3, 0:3])))
-        return jnp.array([jnp.log10(jnp.linalg.det(self.jacob(*z))) - 4])
+        return jnp.array([jnp.log10(jnp.linalg.det(self.jacob(*z))) - DET_THRESH])
 
     # define class k funciton
     # def alpha(self, h):
@@ -92,23 +94,35 @@ cbf = CBF.from_config(config)
 ts_traj = np.array([np.repeat([0], 1000), np.linspace(-150, 150, 1000), np.repeat([150], 1000)]).T
 ts_followed = []
 js_followed = []
-z = js_traj[0]
+z = js_traj[-1]
 for i, ts_pt in enumerate(ts_traj):
     # Calculate delta in task space
+    ts_pt = ts_traj[-1]
     delta_ts = ts_pt - robot.fkine(np.array(z)).t
-
+    print(np.linalg.norm(delta_ts))
     # Get Jacobian and invert
     # print(robot.jacob0(np.array(z)))
     inv_jac = np.linalg.pinv(robot.jacob0(np.array(z), half='trans'))
-    u_nom = np.clip(inv_jac @ delta_ts, -MAX_STEP, MAX_STEP)
+    # u_nom = np.clip(inv_jac @ delta_ts, -MAX_STEP, MAX_STEP)
+    u_nom = inv_jac @ delta_ts
+    # Normalize to have max magnitude of MAX_STEP
+    # u_nom *= np.clip(1, )
+    if norm := np.linalg.norm(u_nom) > MAX_STEP:
+        u_nom = (u_nom / norm) * MAX_STEP 
 
     # Get control and update robot state
     u = cbf.safety_filter(z, u_nom)
+    noise = np.random.normal(0, 0.00002, (4,)) 
+    print(noise)
+    u += noise
+    if norm := np.linalg.norm(u) > MAX_STEP:
+        u = (u / norm) * MAX_STEP 
+    
     if any(jnp.isnan(u)):
         print('skipping nan nan nan nan nan nan nan nan')
         continue
     z += u 
-    print(u)
+    # print(u)
     ts_followed.append(robot.fkine(np.array(z)).t)
     js_followed.append(z)
 
