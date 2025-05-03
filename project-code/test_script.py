@@ -36,7 +36,7 @@ with open('js_traj.pkl', 'rb') as f:
 
 agent = Agent(np.array(js_traj[0]), Point(4), dyn, p=1000)
 # control = Goal(np.array(js_traj[0]), shape=Point(4), dynamics=SingleIntegrator(4), gamma=1, p=100)
-control = Goal(np.array(js_traj[0]), shape=Point(4), dynamics=SingleIntegrator(4))
+control = Goal(np.array(js_traj[-1]), shape=Point(4), dynamics=SingleIntegrator(4), p=1000)
 
 s = Simulation()
 s.add_agent(agent, control, upper_bounds=0.5, lower_bounds=-0.5)
@@ -46,10 +46,10 @@ s.add_obstacle(SingularityCBF(agent, thresh=0, k=100))
 robot.plot(agent.state)
 qs = []
 ts = []
-for i in range(len(js_traj)):
+for i in range(len(js_traj) * 2):
     s.step(0.1)
     # J = robot.jacob0(agent.state)
-    control.state = js_traj[i]
+    # control.state = js_traj[i]
     print(f' state: {agent.state}   manip: {np.log10(jnp.linalg.det(lambda_jac(*agent.state)[0:3, 0:3]))}')
     # robot.plot(agent.state)
     
