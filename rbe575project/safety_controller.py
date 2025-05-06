@@ -1,10 +1,11 @@
-import rclpy
+import rclpy, time
 from rclpy.node import Node
 from control_msgs.msg import JointJog
 from std_msgs.msg import Float64MultiArray
 from std_srvs.srv import Trigger
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import TwistStamped
+from std_msgs.msg import Bool
 
 class SafetyController(Node):
     def __init__(self):
@@ -22,7 +23,7 @@ class SafetyController(Node):
         # Create publisher to command robot
         self.joint_pub = self.create_publisher(JointJog, '/servo_node/delta_joint_cmds', 10)
 
-        self.pos_pub = self.create_publisher(Twist, '/servo_node/delta_twist_cmds', 10)
+        self.pos_pub = self.create_publisher(TwistStamped, '/servo_node/delta_twist_cmds', 10)
         
         # Subscribe to joint velocities
         self.create_subscription(Float64MultiArray, '/joint_velocities', self.velo_callback, 10)
@@ -33,6 +34,7 @@ class SafetyController(Node):
         self.create_subscription(Float64MultiArray, '/task_position', self.pos_callback, 10)
 
         self.joint_positions = [0,0,0,0]
+        self.ee_position = [0.0, 0.0, 0.0]
 
         # Subscribe to save joint positions
         self.create_subscription(JointState, '/joint_states', self.update_current_positions, 10)
@@ -71,11 +73,22 @@ class SafetyController(Node):
 
     def pos_callback(self, msg):
         self.get_logger().info('Sending task positions...')
-        msg = TwistStamped()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.data.linear = msg.data
+        twist = TwistStamped()
+        twist.header.stamp = self.get_clock().now().to_msg()
+        twist.header.frame_id = 'link1'
 
-        self.pos_pub.publish(msg)
+        # Get displacement (task positions)
+        duration = 0.1
+        velocities = [(b_i - a_i) / duration for a_i, b_i in zip(self.ee_position, msg.data)]
+
+        twist.twist.linear.x = velocities[0]
+        twist.twist.linear.y = velocities[1]
+        twist.twist.linear.z = velocities[2]
+
+        # Update current end effector position
+        self.ee_position = [a + b for a, b in zip(self.ee_position, msg.data)]
+
+        self.pos_pub.publish(twist)
 
     
 
