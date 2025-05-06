@@ -4,7 +4,7 @@ from control_msgs.msg import JointJog
 from std_msgs.msg import Float64MultiArray
 from std_srvs.srv import Trigger
 from sensor_msgs.msg import JointState
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import TwistStamped
 
 class SafetyController(Node):
     def __init__(self):
@@ -71,6 +71,12 @@ class SafetyController(Node):
 
     def pos_callback(self, msg):
         self.get_logger().info('Sending task positions...')
+        msg = TwistStamped()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.data.linear = msg.data
+
+        self.pos_pub.publish(msg)
+
     
 
     def velo_callback(self, msg):
