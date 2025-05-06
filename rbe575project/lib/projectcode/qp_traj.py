@@ -6,7 +6,7 @@ import roboticstoolbox as rtb
 import sympy as sym
 
 MAX_STEP = 0.1
-DET_THRESH = 4  # Keep jacobian determinant above this.
+DET_THRESH = 0  # Keep jacobian determinant above this.
 
 # MAX_STEP = 0.025
 # Create a config class for your problem inheriting from the CBFConfig class
@@ -111,7 +111,8 @@ for i, ts_pt in enumerate(ts_traj):
         u_nom = (u_nom / norm) * MAX_STEP 
 
     # Get control and update robot state
-    u = cbf.safety_filter(z, u_nom)
+    # u = cbf.safety_filter(z, u_nom)
+    u = u_nom
     noise = np.random.normal(0, 0.00002, (4,)) 
     print(noise)
     u += noise

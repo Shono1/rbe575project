@@ -43,12 +43,12 @@ class CBFNode(Node):
 
         # Get the directory of the current script
 
-        # with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
-        with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
+        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/js_traj_nocbf.pkl', 'rb') as f:
+        # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/js_traj_nocbf.pkl', 'rb') as f:
             self.js_traj = pkl.load(f)
 
-        # with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
-        with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
+        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/ts_traj_nocbf.pkl', 'rb') as f:
+        # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/ts_traj_nocbf.pkl', 'rb') as f:
             self.ts_traj = pkl.load(f)
 
         # Setup publisher and subscriber
