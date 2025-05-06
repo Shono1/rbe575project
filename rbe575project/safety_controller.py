@@ -34,7 +34,7 @@ class SafetyController(Node):
         self.create_subscription(Float64MultiArray, '/task_position', self.pos_callback, 10)
 
         self.joint_positions = [0,0,0,0]
-        self.ee_position = [0.0, 0.0, 0.0]
+        self.ee_position = []
 
         # Subscribe to save joint positions
         self.create_subscription(JointState, '/joint_states', self.update_current_positions, 10)
@@ -72,21 +72,38 @@ class SafetyController(Node):
         self.joint_pub.publish(joint_jog)
 
     def pos_callback(self, msg):
-        self.get_logger().info('Sending task positions...')
+        # self.get_logger().info('Sending task positions...')
         twist = TwistStamped()
         twist.header.stamp = self.get_clock().now().to_msg()
         twist.header.frame_id = 'link1'
 
+
+        # If the list is empty update it's starting position
+        new_pos = [ele / 1000.0 for ele in msg.data]
+
+        if not self.ee_position:
+            self.ee_position = new_pos
+
         # Get displacement (task positions)
         duration = 0.1
-        velocities = [(b_i - a_i) / duration for a_i, b_i in zip(self.ee_position, msg.data)]
+        velocities = [(b_i - a_i) / duration for a_i, b_i in zip(self.ee_position, new_pos)]
+
+        for i in range(len(velocities)):
+            if velocities[i] >= 1.0:
+                velocities[i] = 0.9
+        
+        for i in range(len(velocities)):
+            if velocities[i] <= -1.0:
+                velocities[i] = -0.9
+        
+        self.get_logger().info(str(velocities))
 
         twist.twist.linear.x = velocities[0]
         twist.twist.linear.y = velocities[1]
         twist.twist.linear.z = velocities[2]
 
         # Update current end effector position
-        self.ee_position = [a + b for a, b in zip(self.ee_position, msg.data)]
+        self.ee_position = new_pos
 
         self.pos_pub.publish(twist)
 

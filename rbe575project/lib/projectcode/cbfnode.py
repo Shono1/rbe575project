@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
-from .ArmRobot import OMXArm
-from .SingularityCBF import SingularityCBF
+# from .ArmRobot import OMXArm
+# from .SingularityCBF import SingularityCBF
 import roboticstoolbox as rtb
 import numpy as np
 from cbf_toolbox.vertex import Agent, Goal
@@ -43,12 +43,12 @@ class CBFNode(Node):
 
         # Get the directory of the current script
 
-        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
-        # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
+        # with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
+        with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/js_record.pkl', 'rb') as f:
             self.js_traj = pkl.load(f)
 
-        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
-        # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
+        # with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
+        with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/ts_record.pkl', 'rb') as f:
             self.ts_traj = pkl.load(f)
 
         # Setup publisher and subscriber
@@ -70,7 +70,7 @@ class CBFNode(Node):
         else:
             for pos in self.ts_traj:
                 send = Float64MultiArray()
-                send.data = pos.tolist()
+                send.data = pos.t.tolist()
                 self.position_pub.publish(send)
                 time.sleep(0.1)
 
