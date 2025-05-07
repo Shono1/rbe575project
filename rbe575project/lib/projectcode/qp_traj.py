@@ -5,10 +5,23 @@ import numpy as np
 import roboticstoolbox as rtb
 import sympy as sym
 from copy import deepcopy
+from spatialmath import SE3
 
 MAX_STEP = 0.1
-DET_THRESH = 5 # Keep jacobian determinant above this.
+DET_THRESH = 0  # Keep jacobian determinant above this.
 TIMESTEPS = 500
+Q1_MIN = -np.pi 
+Q1_MAX = np.pi 
+Q2_MIN = -np.pi / 2
+Q2_MAX = np.pi / 2
+Q3_MIN = -np.pi / 2
+Q3_MAX = np.pi / 2
+Q4_MIN = -9 * np.pi / 16
+Q4_MAX = 10 * np.pi / 16
+
+Z_HEIGHT = 300
+Y_START = -150
+Y_GOAL = 150
 
 # MAX_STEP = 0.025
 # Create a config class for your problem inheriting from the CBFConfig class
@@ -37,15 +50,17 @@ class ArmCBF(CBFConfig):
     # Define the barrier function `h`
     # The *relative degree* of this system is 2, so, we'll use the h_2 method
     def h_1(self, z):
-        # print(f'z: {z}')
-        # print(f'jac(z): {self.jacob(*z)}')
-        # print(f'det(z): {jnp.linalg.det(self.jacob(*z))}')
-        # print(jnp.log10(jnp.linalg.det(self.jacob(*z)[0:3, 0:3])))
-        return jnp.array([jnp.log10(jnp.linalg.det(self.jacob(*z))) - DET_THRESH])
-
-    # define class k funciton
-    # def alpha(self, h):
-    #     return jnp.sqrt(h)
+        return jnp.array([
+            # jnp.log10(jnp.linalg.det(self.jacob(*z))) - DET_THRESH,  # Avoid singularities
+            Q1_MAX - z[0],
+            z[0] - Q1_MIN,
+            Q2_MAX - z[1],
+            z[1] - Q2_MIN,
+            Q3_MAX - z[2],
+            z[2] - Q3_MIN, 
+            Q4_MAX - z[3],
+            z[3] - Q4_MIN]) 
+            
 
 # Build robot object
 dh_tab = [rtb.DHLink(d=96.326, alpha=-np.pi/2, a=0, offset=0),
@@ -69,6 +84,7 @@ lambda_jac = sym.lambdify([th1, th2, th3, th4], sym_jac, 'jax')
 with open('js_traj.pkl', 'rb') as f:
     js_traj = pkl.load(f)
 
+print(type(js_traj))
 js_traj.extend([js_traj[-1]] * len(js_traj))  # Append final point to end of trajectory a few times
 # print([pt.t for pt in js_traj])
 z = js_traj[0]
@@ -77,25 +93,14 @@ z = js_traj[0]
 config = ArmCBF(jacob=lambda_jac)
 cbf = CBF.from_config(config)
 
-# Run filtered traj (OLD JOINT SPACE CODE)
-# ts = []
-# for i, qs in enumerate(js_traj):
-#     # z = get_state()
-#     z_des = qs
-#     u_nom = z_des - z
-#     u = cbf.safety_filter(z, u_nom)
-#     z += u
-#     print(z)
-#     ts.append(robot.fkine(np.array(z)))
-# print([pt.t for pt in ts])
-# with open('ts_record_filter.pkl', 'wb') as f:
-#     pkl.dump(ts, f)
-
 # ts_traj = [robot.fkine(qs).t for qs in js_traj]
-ts_traj = np.array([np.repeat([0], TIMESTEPS), np.linspace(-150, 150, TIMESTEPS), np.repeat([150], TIMESTEPS)]).T
+ts_traj = np.array([np.repeat([0], TIMESTEPS), np.linspace(Y_START, Y_GOAL, TIMESTEPS), np.repeat([Z_HEIGHT], TIMESTEPS)]).T
 ts_followed = []
 js_followed = []
-z = js_traj[-1]
+cbf_followed = []
+# z = js_traj[-1]
+start = SE3(0, Y_START, Z_HEIGHT)
+z = robot.ik_LM(start, mask=[1, 1, 1, 0, 0, 0])[0]
 for i, ts_pt in enumerate(ts_traj):
     # Calculate delta in task space
     ts_pt = ts_traj[-1]
@@ -124,12 +129,16 @@ for i, ts_pt in enumerate(ts_traj):
         print('skipping nan nan nan nan nan nan nan nan')
         continue
     z += u 
-    # print(deepcopy(z))
+
     ts_followed.append(robot.fkine(np.array(z)).t)
     js_followed.append(deepcopy(z))
+    cbf_followed.append(cbf.h_1(z))
 
-with open('rbe575project/lib/projectcode/ts_traj/ts_traj_5.pkl', 'wb') as f:
+with open(f'rbe575project/lib/projectcode/ts_traj/ts_traj_{DET_THRESH}.pkl', 'wb') as f:
     pkl.dump(ts_followed, f)
 
-with open('rbe575project/lib/projectcode/js_traj/js_traj_5.pkl', 'wb') as f:
+with open(f'rbe575project/lib/projectcode/js_traj/js_traj_{DET_THRESH}.pkl', 'wb') as f:
     pkl.dump(js_followed, f)
+
+with open(f'rbe575project/lib/projectcode/cbf_functions/cbf_functions_{DET_THRESH}.pkl', 'wb') as f:
+    pkl.dump(cbf_followed, f)
