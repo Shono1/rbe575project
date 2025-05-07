@@ -6,7 +6,7 @@ import roboticstoolbox as rtb
 import sympy as sym
 
 MAX_STEP = 0.1
-DET_THRESH = 5  # Keep jacobian determinant above this.
+DET_THRESH = 4  # Keep jacobian determinant above this.
 
 # MAX_STEP = 0.025
 # Create a config class for your problem inheriting from the CBFConfig class
@@ -127,8 +127,8 @@ for i, ts_pt in enumerate(ts_traj):
     ts_followed.append(robot.fkine(np.array(z)).t)
     js_followed.append(z)
 
-with open('rbe575project/lib/projectcode/trajectories/ts_traj_thresh5.pk4', 'wb') as f:
+with open('rbe575project/lib/projectcode/trajectories/ts_traj_thresh4.pkl', 'wb') as f:
     pkl.dump(ts_followed, f)
 
-with open('rbe575project/lib/projectcode/trajectories/js_traj_thresh5.pkl', 'wb') as f:
+with open('rbe575project/lib/projectcode/trajectories/js_traj_thresh4.pkl', 'wb') as f:
     pkl.dump(js_followed, f)
