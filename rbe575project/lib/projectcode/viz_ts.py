@@ -23,10 +23,12 @@ for f in ts_files:
 
 plt.xlim([-50, 200])
 plt.ylim([-300, 300])
-plt.legend()
-plt.title("Task Space Trajectories")
-plt.xlabel("X (mm)")
-plt.ylabel("Y (mm)")
+plt.legend(prop={'size': 16})
+plt.xticks(fontsize=16)
+plt.yticks(fontsize=16)
+plt.title("Task Space Trajectories", fontsize=20)
+plt.xlabel("X (mm)", fontsize=20)
+plt.ylabel("Y (mm)", fontsize=20)
 
 js_dir = 'rbe575project/lib/projectcode/js_traj'
 js_files = [f for f in os.listdir(js_dir) if f.endswith('.pkl')]
@@ -42,11 +44,13 @@ for joint_idx in range(joint_count):
             time = np.linspace(0, 10, len(js_record))
             plt.plot(time, js_record[:, joint_idx], label=f, linewidth=3.5)
 
-    plt.title(f"Joint {joint_idx + 1} Trajectory")
-    plt.xlabel("Time (s)")
-    plt.ylabel(f"Joint {joint_idx + 1} (rad)")
+    plt.title(f"Joint {joint_idx + 1} Trajectory", fontsize=20)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.xlabel("Time (s)", fontsize=20)
+    plt.ylabel(f"Joint {joint_idx + 1} (rad)", fontsize=20)
     plt.grid(True)
-    plt.legend()
+    plt.legend(fontsize=20)
     plt.tight_layout()
 
 cbf_dir = 'rbe575project/lib/projectcode/cbf_functions'
@@ -59,11 +63,13 @@ for f in cbf_files:
         time = np.linspace(0, 10, len(cbf_record))
         plt.plot(time, cbf_record[:], label=f, linewidth=3.5)
 
-    plt.title(f"Determinant Threshold")
-    plt.xlabel("Time (s)")
-    plt.ylabel(f"Determinant")
+    plt.title(f"Determinant Threshold", fontsize=20)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.xlabel("Time (s)", fontsize=20)
+    plt.ylabel(f"Determinant", fontsize=20)
     plt.grid(True)
-    plt.legend()
+    plt.legend(fontsize=20)
     plt.tight_layout()
 
 plt.show()
