@@ -21,7 +21,7 @@ for f in ts_files:
         cbf_data = np.array(ts_points)
         plt.scatter(cbf_data[:, 0], cbf_data[:, 1], label=f)
 
-plt.xlim([-300, 300])
+plt.xlim([-50, 200])
 plt.ylim([-300, 300])
 plt.legend()
 plt.title("Task Space Trajectories")
