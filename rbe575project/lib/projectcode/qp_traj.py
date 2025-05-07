@@ -6,7 +6,7 @@ import roboticstoolbox as rtb
 import sympy as sym
 
 MAX_STEP = 0.1
-DET_THRESH = 0  # Keep jacobian determinant above this.
+DET_THRESH = 5  # Keep jacobian determinant above this.
 
 # MAX_STEP = 0.025
 # Create a config class for your problem inheriting from the CBFConfig class
@@ -111,8 +111,8 @@ for i, ts_pt in enumerate(ts_traj):
         u_nom = (u_nom / norm) * MAX_STEP 
 
     # Get control and update robot state
-    # u = cbf.safety_filter(z, u_nom)
-    u = u_nom
+    u = cbf.safety_filter(z, u_nom)
+    # u = u_nom
     noise = np.random.normal(0, 0.00002, (4,)) 
     print(noise)
     u += noise
@@ -127,8 +127,8 @@ for i, ts_pt in enumerate(ts_traj):
     ts_followed.append(robot.fkine(np.array(z)).t)
     js_followed.append(z)
 
-with open('ts_record_filter.pkl', 'wb') as f:
+with open('rbe575project/lib/projectcode/trajectories/ts_traj_thresh5.pk4', 'wb') as f:
     pkl.dump(ts_followed, f)
 
-with open('js_record_filtered.pkl', 'wb') as f:
+with open('rbe575project/lib/projectcode/trajectories/js_traj_thresh5.pkl', 'wb') as f:
     pkl.dump(js_followed, f)
