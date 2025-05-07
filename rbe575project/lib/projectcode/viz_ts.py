@@ -69,7 +69,7 @@ for joint_idx in range(joint_count):
         with open(os.path.join(js_dir, f), 'rb') as file:
             js_record = np.array(pkl.load(file))
             time = np.linspace(0, 10, len(js_record))
-            plt.plot(time, js_record[:, joint_idx], label=f, linewidth=2)
+            plt.plot(time, js_record[:, joint_idx], label=f, linewidth=5)
 
     plt.title(f"Joint {joint_idx + 1} Trajectory")
     plt.xlabel("Time (s)")
