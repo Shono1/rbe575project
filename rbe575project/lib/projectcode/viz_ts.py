@@ -48,4 +48,43 @@ for joint_idx in range(joint_count):
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
+
+cbf_dir = 'rbe575project/lib/projectcode/cbf_functions'
+cbf_files = [f for f in os.listdir(cbf_dir) if f.endswith('.pkl')]
+
+cbf_count = joint_count * 2 + 1
+
+for cbf_idx in range(cbf_count):
+    plt.figure(figsize=(8, 4))
+    for f in cbf_files:
+        with open(os.path.join(cbf_dir, f), 'rb') as file:
+            cbf_record = np.array(pkl.load(file))
+            time = np.linspace(0, 10, len(cbf_record))
+            plt.plot(time, cbf_record[:, cbf_idx], label=f, linewidth=3.5)
+
+    plt.title(f"CBF {cbf_idx + 1} Trajectory")
+    if cbf_idx == 0:
+        plt.title("Determinant Threshold Level")
+    elif cbf_idx == 1:
+        plt.title("Joint 1 Maximum Threshold Level")
+    elif cbf_idx == 2:
+        plt.title("Joint 1 Minimum Threshold Level")
+    elif cbf_idx == 3:
+        plt.title("Joint 2 Maximum Threshold Level")
+    elif cbf_idx == 4:
+        plt.title("Joint 2 Minimum Threshold Level")
+    elif cbf_idx == 5:
+        plt.title("Joint 3 Maximum Threshold Level")
+    elif cbf_idx == 6:
+        plt.title("Joint 3 Minimum Threshold Level")
+    elif cbf_idx == 7:
+        plt.title("Joint 4 Maximum Threshold Level")
+    elif cbf_idx == 8:
+        plt.title("Joint 4 Minimum Threshold Level")
+    plt.xlabel("Time (s)")
+    plt.ylabel(f"CBF {cbf_idx + 1}")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
 plt.show()

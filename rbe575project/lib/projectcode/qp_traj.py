@@ -8,7 +8,7 @@ from copy import deepcopy
 from spatialmath import SE3
 
 MAX_STEP = 0.1
-DET_THRESH = 0  # Keep jacobian determinant above this.
+DET_THRESH = 2.5  # Keep jacobian determinant above this.
 TIMESTEPS = 500
 Q1_MIN = -np.pi 
 Q1_MAX = np.pi 
@@ -19,9 +19,9 @@ Q3_MAX = np.pi / 2
 Q4_MIN = -9 * np.pi / 16
 Q4_MAX = 10 * np.pi / 16
 
-Z_HEIGHT = 300
-Y_START = -150
-Y_GOAL = 150
+Z_HEIGHT = 220
+Y_START = -270
+Y_GOAL = 270
 
 # MAX_STEP = 0.025
 # Create a config class for your problem inheriting from the CBFConfig class
@@ -48,10 +48,9 @@ class ArmCBF(CBFConfig):
         return B
 
     # Define the barrier function `h`
-    # The *relative degree* of this system is 2, so, we'll use the h_2 method
     def h_1(self, z):
-        return jnp.array([
-            # jnp.log10(jnp.linalg.det(self.jacob(*z))) - DET_THRESH,  # Avoid singularities
+        if DET_THRESH == -1:
+            return jnp.array([
             Q1_MAX - z[0],
             z[0] - Q1_MIN,
             Q2_MAX - z[1],
@@ -60,6 +59,29 @@ class ArmCBF(CBFConfig):
             z[2] - Q3_MIN, 
             Q4_MAX - z[3],
             z[3] - Q4_MIN]) 
+        return jnp.array([
+            jnp.log10(jnp.linalg.det(self.jacob(*z))) - DET_THRESH,  # Avoid singularities
+            Q1_MAX - z[0],
+            z[0] - Q1_MIN,
+            Q2_MAX - z[1],
+            z[1] - Q2_MIN,
+            Q3_MAX - z[2],
+            z[2] - Q3_MIN, 
+            Q4_MAX - z[3],
+            z[3] - Q4_MIN]) 
+    
+def calc_values(z):
+    # Calculate the CBF values for the given state z without any control
+    return jnp.array([
+        jnp.log10(jnp.linalg.det(lambda_jac(*z))) - DET_THRESH,  # Avoid singularities
+        Q1_MAX - z[0],
+        z[0] - Q1_MIN,
+        Q2_MAX - z[1],
+        z[1] - Q2_MIN,
+        Q3_MAX - z[2],
+        z[2] - Q3_MIN, 
+        Q4_MAX - z[3],
+        z[3] - Q4_MIN]) 
             
 
 # Build robot object
@@ -84,7 +106,6 @@ lambda_jac = sym.lambdify([th1, th2, th3, th4], sym_jac, 'jax')
 with open('js_traj.pkl', 'rb') as f:
     js_traj = pkl.load(f)
 
-print(type(js_traj))
 js_traj.extend([js_traj[-1]] * len(js_traj))  # Append final point to end of trajectory a few times
 # print([pt.t for pt in js_traj])
 z = js_traj[0]
@@ -100,7 +121,7 @@ js_followed = []
 cbf_followed = []
 # z = js_traj[-1]
 start = SE3(0, Y_START, Z_HEIGHT)
-z = robot.ik_LM(start, mask=[1, 1, 1, 0, 0, 0])[0]
+z = robot.ik_LM(start, mask=[1, 1, 1, 0, 0, 0], q0=[-np.pi/2, 0, 0, 0])[0]
 for i, ts_pt in enumerate(ts_traj):
     # Calculate delta in task space
     ts_pt = ts_traj[-1]
@@ -132,7 +153,7 @@ for i, ts_pt in enumerate(ts_traj):
 
     ts_followed.append(robot.fkine(np.array(z)).t)
     js_followed.append(deepcopy(z))
-    cbf_followed.append(cbf.h_1(z))
+    cbf_followed.append(np.array(calc_values(z)))
 
 with open(f'rbe575project/lib/projectcode/ts_traj/ts_traj_{DET_THRESH}.pkl', 'wb') as f:
     pkl.dump(ts_followed, f)
