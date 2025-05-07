@@ -7,7 +7,7 @@ import sympy as sym
 from copy import deepcopy
 
 MAX_STEP = 0.1
-DET_THRESH = 2  # Keep jacobian determinant above this.
+DET_THRESH = 5 # Keep jacobian determinant above this.
 TIMESTEPS = 500
 
 # MAX_STEP = 0.025
@@ -69,7 +69,6 @@ lambda_jac = sym.lambdify([th1, th2, th3, th4], sym_jac, 'jax')
 with open('js_traj.pkl', 'rb') as f:
     js_traj = pkl.load(f)
 
-print(type(js_traj))
 js_traj.extend([js_traj[-1]] * len(js_traj))  # Append final point to end of trajectory a few times
 # print([pt.t for pt in js_traj])
 z = js_traj[0]
@@ -113,8 +112,8 @@ for i, ts_pt in enumerate(ts_traj):
         u_nom = (u_nom / norm) * MAX_STEP 
 
     # Get control and update robot state
-    # u = cbf.safety_filter(z, u_nom)
-    u = u_nom
+    u = cbf.safety_filter(z, u_nom)
+    # u = u_nom
     noise = np.random.normal(0, 0.00002, (4,)) 
     # print(noise)
     u += noise
@@ -129,8 +128,8 @@ for i, ts_pt in enumerate(ts_traj):
     ts_followed.append(robot.fkine(np.array(z)).t)
     js_followed.append(deepcopy(z))
 
-with open('rbe575project/lib/projectcode/trajectories/ts_traj_nocbf.pkl', 'wb') as f:
+with open('rbe575project/lib/projectcode/ts_traj/ts_traj_5.pkl', 'wb') as f:
     pkl.dump(ts_followed, f)
 
-with open('rbe575project/lib/projectcode/trajectories/js_traj_nocbf.pkl', 'wb') as f:
+with open('rbe575project/lib/projectcode/js_traj/js_traj_5.pkl', 'wb') as f:
     pkl.dump(js_followed, f)
