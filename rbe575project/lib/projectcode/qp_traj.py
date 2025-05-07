@@ -8,7 +8,7 @@ from copy import deepcopy
 from spatialmath import SE3
 
 MAX_STEP = 0.1
-DET_THRESH = 2.5  # Keep jacobian determinant above this.
+DET_THRESH = 8  # Keep jacobian determinant above this.
 TIMESTEPS = 500
 Q1_MIN = -np.pi 
 Q1_MAX = np.pi 

@@ -57,7 +57,7 @@ for f in cbf_files:
     with open(os.path.join(cbf_dir, f), 'rb') as file:
         cbf_record = np.array(pkl.load(file))
         time = np.linspace(0, 10, len(cbf_record))
-        plt.plot(time, cbf_record[:, 0], label=f, linewidth=3.5)
+        plt.plot(time, cbf_record[:], label=f, linewidth=3.5)
 
     plt.title(f"Determinant Threshold")
     plt.xlabel("Time (s)")
