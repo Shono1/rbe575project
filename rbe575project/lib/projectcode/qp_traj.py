@@ -70,18 +70,11 @@ class ArmCBF(CBFConfig):
             Q4_MAX - z[3],
             z[3] - Q4_MIN]) 
     
-def calc_values(z):
+def calc_det(z):
     # Calculate the CBF values for the given state z without any control
-    return jnp.array([
-        jnp.log10(jnp.linalg.det(lambda_jac(*z))) - DET_THRESH,  # Avoid singularities
-        Q1_MAX - z[0],
-        z[0] - Q1_MIN,
-        Q2_MAX - z[1],
-        z[1] - Q2_MIN,
-        Q3_MAX - z[2],
-        z[2] - Q3_MIN, 
-        Q4_MAX - z[3],
-        z[3] - Q4_MIN]) 
+    return jnp.array(
+        jnp.log10(jnp.linalg.det(lambda_jac(*z)))# Avoid singularities
+        ) 
             
 
 # Build robot object
@@ -153,7 +146,7 @@ for i, ts_pt in enumerate(ts_traj):
 
     ts_followed.append(robot.fkine(np.array(z)).t)
     js_followed.append(deepcopy(z))
-    cbf_followed.append(np.array(calc_values(z)))
+    cbf_followed.append(np.array(calc_det(z)))
 
 with open(f'rbe575project/lib/projectcode/ts_traj/ts_traj_{DET_THRESH}.pkl', 'wb') as f:
     pkl.dump(ts_followed, f)
