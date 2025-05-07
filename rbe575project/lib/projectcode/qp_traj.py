@@ -8,7 +8,7 @@ from copy import deepcopy
 from spatialmath import SE3
 
 MAX_STEP = 0.1
-DET_THRESH = 8  # Keep jacobian determinant above this.
+DET_THRESH = 100  # Keep jacobian determinant above this.
 TIMESTEPS = 500
 Q1_MIN = -np.pi 
 Q1_MAX = np.pi 
@@ -131,8 +131,8 @@ for i, ts_pt in enumerate(ts_traj):
         u_nom = (u_nom / norm) * MAX_STEP 
 
     # Get control and update robot state
-    u = cbf.safety_filter(z, u_nom)
-    # u = u_nom
+    # u = cbf.safety_filter(z, u_nom)
+    u = u_nom
     noise = np.random.normal(0, 0.00002, (4,)) 
     # print(noise)
     u += noise
