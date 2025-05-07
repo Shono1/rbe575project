@@ -4,9 +4,11 @@ import pickle as pkl
 import numpy as np
 import roboticstoolbox as rtb
 import sympy as sym
+from copy import deepcopy
 
 MAX_STEP = 0.1
-DET_THRESH = 4  # Keep jacobian determinant above this.
+DET_THRESH = 2  # Keep jacobian determinant above this.
+TIMESTEPS = 500
 
 # MAX_STEP = 0.025
 # Create a config class for your problem inheriting from the CBFConfig class
@@ -91,7 +93,7 @@ cbf = CBF.from_config(config)
 #     pkl.dump(ts, f)
 
 # ts_traj = [robot.fkine(qs).t for qs in js_traj]
-ts_traj = np.array([np.repeat([0], 1000), np.linspace(-150, 150, 1000), np.repeat([150], 1000)]).T
+ts_traj = np.array([np.repeat([0], TIMESTEPS), np.linspace(-150, 150, TIMESTEPS), np.repeat([150], TIMESTEPS)]).T
 ts_followed = []
 js_followed = []
 z = js_traj[-1]
@@ -99,7 +101,7 @@ for i, ts_pt in enumerate(ts_traj):
     # Calculate delta in task space
     ts_pt = ts_traj[-1]
     delta_ts = ts_pt - robot.fkine(np.array(z)).t
-    print(np.linalg.norm(delta_ts))
+    # print(np.linalg.norm(delta_ts))
     # Get Jacobian and invert
     # print(robot.jacob0(np.array(z)))
     inv_jac = np.linalg.pinv(robot.jacob0(np.array(z), half='trans'))
@@ -111,10 +113,10 @@ for i, ts_pt in enumerate(ts_traj):
         u_nom = (u_nom / norm) * MAX_STEP 
 
     # Get control and update robot state
-    u = cbf.safety_filter(z, u_nom)
-    # u = u_nom
+    # u = cbf.safety_filter(z, u_nom)
+    u = u_nom
     noise = np.random.normal(0, 0.00002, (4,)) 
-    print(noise)
+    # print(noise)
     u += noise
     if norm := np.linalg.norm(u) > MAX_STEP:
         u = (u / norm) * MAX_STEP 
@@ -123,12 +125,12 @@ for i, ts_pt in enumerate(ts_traj):
         print('skipping nan nan nan nan nan nan nan nan')
         continue
     z += u 
-    # print(u)
+    # print(deepcopy(z))
     ts_followed.append(robot.fkine(np.array(z)).t)
-    js_followed.append(z)
+    js_followed.append(deepcopy(z))
 
-with open('rbe575project/lib/projectcode/trajectories/ts_traj_thresh4.pkl', 'wb') as f:
+with open('rbe575project/lib/projectcode/trajectories/ts_traj_nocbf.pkl', 'wb') as f:
     pkl.dump(ts_followed, f)
 
-with open('rbe575project/lib/projectcode/trajectories/js_traj_thresh4.pkl', 'wb') as f:
+with open('rbe575project/lib/projectcode/trajectories/js_traj_nocbf.pkl', 'wb') as f:
     pkl.dump(js_followed, f)
