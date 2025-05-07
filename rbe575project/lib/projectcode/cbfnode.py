@@ -43,13 +43,13 @@ class CBFNode(Node):
 
         # Get the directory of the current script
 
-        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/trajectories/js_traj_thresh4.pkl', 'rb') as f:
+        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/trajectories/js_traj_nocbf.pkl', 'rb') as f:
         # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/js_traj_nocbf.pkl', 'rb') as f:
-            self.js_traj = pkl.load(f)[::10]
+            self.js_traj = pkl.load(f)
 
-        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/trajectories/ts_traj_thresh4.pkl', 'rb') as f:
+        with open('/home/jhkeselman/colcon_ws/src/rbe575project/rbe575project/lib/projectcode/trajectories/ts_traj_nocbf.pkl', 'rb') as f:
         # with open('/home/cooper530/rbe575/robot/src/rbe575project/rbe575project/lib/projectcode/ts_traj_nocbf.pkl', 'rb') as f:
-            self.ts_traj = pkl.load(f)[::10]
+            self.ts_traj = pkl.load(f)
 
         # Setup publisher and subscriber
         self.joint_pub = self.create_publisher(Float64MultiArray, '/joint_positions', 10)

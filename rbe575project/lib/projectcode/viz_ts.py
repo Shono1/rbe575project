@@ -5,10 +5,10 @@ from spatialmath import SE3
 import numpy as np
 import roboticstoolbox as rtb
 
-with open('rbe575project/lib/projectcode/trajectories/ts_traj_thresh1.pkl', 'rb') as f:
+with open('rbe575project/lib/projectcode/trajectories/ts_traj_nocbf.pkl', 'rb') as f:
     ts_points: list[SE3] = pkl.load(f)
 
-with open('rbe575project/lib/projectcode/trajectories/js_traj_thresh1.pkl', 'rb') as f:
+with open('rbe575project/lib/projectcode/trajectories/js_traj_nocbf.pkl', 'rb') as f:
     js_traj = pkl.load(f)
     
 
