@@ -60,20 +60,66 @@ plt.ylabel("Y (mm)")
 js_dir = 'rbe575project/lib/projectcode/js_traj'
 js_files = [f for f in os.listdir(js_dir) if f.endswith('.pkl')]
 
-joint_count = 4
+# Joint 1
+plt.figure(figsize=(8, 4))
+for f in js_files:
+    with open(os.path.join(js_dir, f), 'rb') as file:
+        js_record = np.array(pkl.load(file))
+        time = np.linspace(0, 10, len(js_record))
+        plt.plot(time, js_record[:, 0], label=f, linewidth=2)
 
-for joint_idx in range(joint_count):
-    plt.figure(figsize=(8, 4))
-    for f in js_files:
-        with open(os.path.join(js_dir, f), 'rb') as file:
-            js_record = np.array(pkl.load(file))
-            time = np.linspace(0, 10, len(js_record))
-            plt.plot(time, js_record[:, joint_idx], label=f, linewidth=2)
+plt.title(f"Joint 1 Trajectory")
+plt.xlabel("Time (s)")
+plt.ylabel(f"Joint 1 (rad)")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+# plt.show()
 
-    plt.title(f"Joint {joint_idx + 1} Trajectory")
-    plt.xlabel("Time (s)")
-    plt.ylabel(f"Joint {joint_idx + 1} (rad)")
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+# Joint 2
+plt.figure(figsize=(8, 4))
+for f in js_files:
+    with open(os.path.join(js_dir, f), 'rb') as file:
+        js_record = np.array(pkl.load(file))
+        time = np.linspace(0, 10, len(js_record))
+        plt.plot(time, js_record[:, 1], label=f, linewidth=2)
+
+plt.title(f"Joint 2 Trajectory")
+plt.xlabel("Time (s)")
+plt.ylabel(f"Joint 2 (rad)")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+# plt.show()
+
+# Joint 3
+plt.figure(figsize=(8, 4))
+for f in js_files:
+    with open(os.path.join(js_dir, f), 'rb') as file:
+        js_record = np.array(pkl.load(file))
+        time = np.linspace(0, 10, len(js_record))
+        plt.plot(time, js_record[:, 2], label=f, linewidth=2)
+
+plt.title(f"Joint 3 Trajectory")
+plt.xlabel("Time (s)")
+plt.ylabel(f"Joint 3 (rad)")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+# plt.show()
+
+# Joint 4
+plt.figure(figsize=(8, 4))
+for f in js_files:
+    with open(os.path.join(js_dir, f), 'rb') as file:
+        js_record = np.array(pkl.load(file))
+        time = np.linspace(0, 10, len(js_record))
+        plt.plot(time, js_record[:, 3], label=f, linewidth=2)
+
+plt.title(f"Joint 4 Trajectory")
+plt.xlabel("Time (s)")
+plt.ylabel(f"Joint 4 (rad)")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
